@@ -1,0 +1,55 @@
+#!/bin/sh
+
+to_cyrus() {
+    if [ ! -e ~/.pinerc ]; then
+	cat <<'EOF' > ~/.pinerc
+# Path of (local or remote) INBOX, e.g. ={mail.somewhere.edu}inbox
+# Normal Unix default is the local INBOX (usually /usr/spool/mail/$USER).
+inbox-path={${ATHENA_USER}.mail.mit.edu/ssl/imap/user=${ATHENA_USER}}INBOX
+
+# List of directories where saved-message folders may be. First one is
+# the default for Saves. Example: Main {host1}mail/[], Desktop mail\[]
+# Syntax: optnl-label {optnl-imap-hostname}optnl-directory-path[]
+folder-collections="MIT Mail" {${ATHENA_USER}.mail.mit.edu/ssl/imap/user=${ATHENA_USER}}INBOX.[],
+        "Old MH Mail" #mh/[],
+        "Local Pine Mail" ~/mail/[]
+
+EOF
+	echo "Your ~/.pinerc has been updated."
+    else
+	cp ~/.pinerc ~/.pinerc.bak.$$
+	perl -0pie - ~/.pinerc <<'EOF'
+s%^(inbox-path=).*$%${1}{\${ATHENA_USER}.mail.mit.edu/ssl/imap/user=\${ATHENA_USER}}INBOX%m or die;
+s%^(folder-collections=).*$%${1}"MIT Mail" {\${ATHENA_USER}.mail.mit.edu/ssl/imap/user=\${ATHENA_USER}}INBOX.[],\n\t"Old MH Mail" #mh/[],\n\t"Local Pine Mail" ~/mail/[]%m or die;
+EOF
+	echo "Your ~/.pinerc has been updated, and your original"
+	echo "~/.pinerc has been saved as ~/.pinerc.bak.$$"
+    fi
+}
+
+to_exchange() {
+    if [ -e ~/.pinerc ]; then
+	cp ~/.pinerc ~/.pinerc.bak.$$
+	perl -0pie - ~/.pinerc <<'EOF'
+s%^(inbox-path=).*$%${1}{imap.exchange.mit.edu/ssl/imap/user=\${ATHENA_USER}}%m or die;
+
+s%^(folder-collections=).*$%${1}"MIT Mail" {imap.exchange.mit.edu/ssl/imap/user=\${ATHENA_USER}}[],\n\t"Old MH Mail" #mh/[],\n\t"Local Pine Mail" ~/mail/[]%m or die;
+EOF
+	echo "Your ~/.pinerc has been updated, and your original"
+	echo "~/.pinerc has been saved as ~/.pinerc.bak.$$"
+    fi
+}
+
+case "$1" in
+    cyrus)
+	to_cyrus
+	;;
+    exchange)
+	to_exchange
+	;;
+    *)
+	echo "Usage: $0 [cyrus | exchange]"
+	exit 1
+	;;
+esac
+exit 0

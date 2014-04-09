@@ -1,3 +1,11 @@
+debathena-alpine-config (1.20) unstable; urgency=low
+
+  * Default to EXCHANGE configuration (Trac: #1438)
+  * Provide a utility for people to switch between Cyrus and EXCHANGE
+    configurations
+
+ -- Jonathan Reed <jdreed@mit.edu>  Wed, 09 Apr 2014 14:51:20 -0400
+
 debathena-alpine-config (1.19) unstable; urgency=low
 
   [ Jonathan Reed ]

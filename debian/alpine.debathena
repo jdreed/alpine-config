@@ -1,8 +1,35 @@
 #!/bin/bash
 
+FLAGFILE="$HOME/.config/debathena/alpine-migration-prompted"
+mkdir -p "$(dirname $FLAGFILE)"
+
 arg=()
 case "$(hesinfo "${ATHENA_USER:-$USER}" pobox 2>/dev/null | cut -d' ' -f2)" in
-    *EXCHANGE*) arg=(-disable-these-authenticators=GSSAPI) ;;
+    *EXCHANGE*) ;;
+    *)
+	if ! [ -e "$FLAGFILE" ]; then
+	    echo "Pine's default configuration has been updated to use"
+	    echo "MIT's Exchange environment, but your account still"
+	    echo "appears to be using the legacy Cyrus environment".
+	    echo
+	    echo "IMPORTANT:"
+	    echo " If you received notification that your e-mail was recently"
+	    echo " migrated to the Exchange environment, you should answer 'n'"
+	    echo " to the following question."
+	    echo
+	    echo -n "Would you like to reconfigure Pine to use the legacy Cyrus environment? [y/n] "
+	    read answer
+	    case "$answer" in
+		[Yy]*)
+		    /usr/lib/debathena-alpine-config/update-pine-config cyrus
+		    echo "In the future, when you are migrated to Exchange,"
+		    echo "you must run the following command:"
+		    echo "/usr/lib/debathena-alpine-config/update-pine-config exchange"
+		    ;;
+	    esac
+	    touch "$FLAGFILE"
+	fi
+	;;
 esac
 
 if ! klist -s; then
@@ -11,16 +38,5 @@ fi
 
 : ${ATHENA_USER=$USER}
 export ATHENA_USER
-
-# If you've customized your folder collections on an Athenified pine,
-# then you probably have copied in mit.edu/hesiod/imap, which isn't
-# going to work.
-#
-# We substitute in $ATHENA_USER rather than use the variable because
-# Athena 9 doesn't have it, and besides this is presumably not being
-# shared between users.
-if [ -e ~/.pinerc ] && grep -qF mit.edu/hesiod/imap ~/.pinerc; then
-    sed -i "s#mit\.edu/hesiod/imap#$ATHENA_USER\.mail\.mit\.edu/imap/user=$ATHENA_USER#g" ~/.pinerc
-fi
 
 exec "alpine.debathena-orig" "${arg[@]}" "$@"

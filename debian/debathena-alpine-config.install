@@ -1,1 +1,2 @@
 debian/alpine.debathena usr/bin
+debian/update-pine-config usr/lib/debathena-alpine-config
