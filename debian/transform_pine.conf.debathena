@@ -1,7 +1,7 @@
 #!/usr/bin/perl -0p
 s%^(user-domain=).*$%${1}mit.edu%m or die;
 s%^(nntp-server=).*$%${1}news.mit.edu%m or die;
-s%^(inbox-path=).*$%${1}{imap.exchange.mit.edu/ssl/imap/user=\${ATHENA_USER}}%m or die;
+s%^(inbox-path=).*$%${1}{imap.exchange.mit.edu/ssl/imap/user=\${ATHENA_USER}}INBOX%m or die;
 s%^(feature-list=).*$%${1}enable-mail-check-cue,\n\tsave-will-quote-leading-froms,\n\tenable-full-header-cmd%m or die;
 s%^(bugs-fullname=).*$%${1}Athena Bugs%m or die;
 s%^(bugs-address=).*$%${1}bugs\@mit.edu%m or die;

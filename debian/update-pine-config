@@ -31,7 +31,7 @@ to_exchange() {
     if [ -e ~/.pinerc ]; then
 	cp ~/.pinerc ~/.pinerc.bak.$$
 	perl -0pie - ~/.pinerc <<'EOF'
-s%^(inbox-path=).*$%${1}{imap.exchange.mit.edu/ssl/imap/user=\${ATHENA_USER}}%m or die;
+s%^(inbox-path=).*$%${1}{imap.exchange.mit.edu/ssl/imap/user=\${ATHENA_USER}}INBOX%m or die;
 
 s%^(folder-collections=).*$%${1}"MIT Mail" {imap.exchange.mit.edu/ssl/imap/user=\${ATHENA_USER}}[],\n\t"Old MH Mail" #mh/[],\n\t"Local Pine Mail" ~/mail/[]%m or die;
 EOF
