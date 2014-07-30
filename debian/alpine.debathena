@@ -7,7 +7,12 @@ arg=()
 case "$(hesinfo "${ATHENA_USER:-$USER}" pobox 2>/dev/null | cut -d' ' -f2)" in
     *EXCHANGE*) ;;
     *)
-	if ! [ -e "$FLAGFILE" ]; then
+	if ! [ -e "$FLAGFILE" ] && klist -s && \
+	    type chpobox > /dev/null 2>&1 && \
+	    chpobox | fgrep -q EXCHANGE.MIT.EDU; then
+	    # They've been migrated, don't ask again
+	    touch "$FLAGFILE"
+	elif ! [ -e "$FLAGFILE" ]; then
 	    echo "Pine's default configuration has been updated to use"
 	    echo "MIT's Exchange environment, but your account still"
 	    echo "appears to be using the legacy Cyrus environment".
@@ -25,6 +30,9 @@ case "$(hesinfo "${ATHENA_USER:-$USER}" pobox 2>/dev/null | cut -d' ' -f2)" in
 		    echo "In the future, when you are migrated to Exchange,"
 		    echo "you must run the following command:"
 		    echo "/usr/lib/debathena-alpine-config/update-pine-config exchange"
+		    echo
+		    echo "Press Enter to continue..."
+		    read answer
 		    ;;
 	    esac
 	    touch "$FLAGFILE"
